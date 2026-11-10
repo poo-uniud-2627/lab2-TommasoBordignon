@@ -36,6 +36,11 @@ public class Ostacoli {
      *           esplosione a catena, non viene colpito di nuovo.
      */
     public void colpisciAttorno(Rettangolo zona) {
+        for(Ostacolo o : ostacoli){
+            if(!o.isRotto() && o.getArea().tocca(zona)){
+                o.colpisci(this);
+            }
+        }
         // scrivete qui
     }
 
