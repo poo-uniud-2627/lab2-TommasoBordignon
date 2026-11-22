@@ -1,4 +1,13 @@
 // Pong — Programmazione Orientata agli Oggetti e Laboratori, Udine, a.a. 2026-27
+
+/*
+In Palla scrivete lancia verso un Bordo
+ e il rimbalzo sulla racchetta orizzontale.
+  Quando la palla arriva quasi parallela alla racchetta,
+   dopo il colpo non deve rallentare: un test lo controlla.
+*/
+
+
 package pong;
 
 import geometria.Posizione;
@@ -60,6 +69,30 @@ public class Palla {
         velocitaY = (caso.nextDouble() * 2 - 1) * velocita * 0.6;
     }
 
+
+    void lancia(double x, double y, Bordo verso, double velocita) {
+        posizione = new Posizione(x, y);
+        rimbalziDaLancio = 0;
+        switch (verso) {
+            case SINISTRA:
+                velocitaX = -velocita;
+                velocitaY = (caso.nextDouble() * 2 - 1) * velocita * 0.6;
+                break;
+            case DESTRA:
+                velocitaX = velocita;
+                velocitaY = (caso.nextDouble() * 2 - 1) * velocita * 0.6;
+                break;
+            case BASSO:
+                velocitaX = (caso.nextDouble() * 2 - 1) * velocita * 0.6;
+                velocitaY = velocita;
+                break;
+            case ALTO:
+                velocitaX = (caso.nextDouble() * 2 - 1) * velocita * 0.6;
+                velocitaY = -velocita;
+                break;
+        }
+    }
+
     /** Ferma la palla in un punto (prima di cominciare una partita). */
     void fermaIn(double x, double y) {
         posizione = new Posizione(x, y);
@@ -74,6 +107,11 @@ public class Palla {
     /** Rimbalzo sul bordo alto o basso del campo: si inverte solo la direzione verticale. */
     void rimbalzaVerticale() {
         velocitaY = -velocitaY;
+    }
+
+    /** Rimbalzo sul bordo sinistro o destro del campo: si inverte solo la direzione orizzontale. */
+    void rimbalzaOrizzontale() {
+        velocitaX = -velocitaX;
     }
 
     /** Vero se la palla, in questo istante, si sovrappone alla racchetta. */
@@ -92,11 +130,30 @@ public class Palla {
      * da dove ha colpito la racchetta (al centro va dritta, sui bordi va in diagonale).
      */
     void rimbalzaSu(Racchetta racchetta) {
-        double velocita = Math.abs(velocitaX) * ACCELERAZIONE_A_OGNI_RIMBALZO;
+        boolean racchettaOrizzontale = racchetta.getBordo().orizzontale();
+        double velocitaDiRiferimento = racchettaOrizzontale
+                ? Math.max(Math.abs(velocitaX), Math.abs(velocitaY))
+                : Math.abs(velocitaX);
+        double velocita = velocitaDiRiferimento * ACCELERAZIONE_A_OGNI_RIMBALZO;
         rimbalziDaLancio++;
         if (rimbalziDaLancio % RIMBALZI_PER_ACCELERARE == 0) {
-            velocita = Math.min(velocita * ACCELERAZIONE_OGNI_TOT_RIMBALZI, Math.max(VELOCITA_MASSIMA, Math.abs(velocitaX)));
+            velocita = Math.min(velocita * ACCELERAZIONE_OGNI_TOT_RIMBALZI,
+                    Math.max(VELOCITA_MASSIMA, velocitaDiRiferimento));
         }
+
+        if (racchettaOrizzontale) {
+            double centroX = racchetta.getX() + racchetta.getLarghezza() / 2.0;
+            double scostamento = (posizione.x() - centroX) / (racchetta.getLarghezza() / 2.0);
+            velocitaX = scostamento * velocita;
+            boolean inAlto = racchetta.getBordo() == Bordo.ALTO;
+            velocitaY = inAlto ? Math.abs(velocita) : -Math.abs(velocita);
+            double y = inAlto
+                    ? racchetta.getY() + racchetta.getAltezza() + RAGGIO
+                    : racchetta.getY() - RAGGIO;
+            posizione = new Posizione(posizione.x(), y);
+            return;
+        }
+
         double scostamento = (posizione.y() - racchetta.getCentroY()) / (racchetta.getAltezza() / 2.0);
         velocitaY = scostamento * velocita;
         velocitaX = velocitaX > 0 ? -velocita : velocita;

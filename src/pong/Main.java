@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
  * Voi giocate a sinistra con le frecce, contro il giocatore automatico a destra.
  * Prima di cominciare: un tasto da 1 a 5 sceglie il livello, SPAZIO fa partire la palla.
  */
+
 public class Main {
 
     public static void main(String[] args) {

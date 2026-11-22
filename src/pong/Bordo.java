@@ -11,11 +11,19 @@ public enum Bordo {
 
     /** Vero per ALTO e BASSO: lì la racchetta è orizzontale e si muove lungo x. */
     public boolean orizzontale() {
-        throw new UnsupportedOperationException("da scrivere");
+        return this == ALTO || this == BASSO;
     }
 
     /** Il bordo di fronte: SINISTRA e DESTRA, ALTO e BASSO. */
     public Bordo opposto() {
-        throw new UnsupportedOperationException("da scrivere");
+        switch (this) {
+            case SINISTRA: return DESTRA;
+            case DESTRA: return SINISTRA;
+            case ALTO: return BASSO;
+            case BASSO: return ALTO;
+            default: throw new AssertionError(this);
+        }
     }
 }
+
+
